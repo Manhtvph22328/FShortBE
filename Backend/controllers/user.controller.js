@@ -66,11 +66,18 @@ const loginUser = async (req, res) => {
 };
 
 // Lấy danh sách User
-// tí code lấy danh sách ở đây
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select('-password'); // Không trả về password
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server', error });
+    }
+};
 
 // Xuất các hàm để sử dụng trong routes
 module.exports = {
     registerUser,
     loginUser,
-    // hàm lấy list user
+    getAllUsers
 };
