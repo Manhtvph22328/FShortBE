@@ -10,6 +10,10 @@ app.use(cors());
 // Kết nối Database
 connectDB();
 
+// Import routes user
+// const userRouter = require('./routes/user.routes');
+//app.use('/api/users', userRouter); // định tuyến user API
+
 app.listen(PORT, () => {
     console.log(` Server running on port ${PORT}`);
 });
