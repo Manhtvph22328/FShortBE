@@ -14,6 +14,13 @@ connectDB();
 const userRouter = require('./routes/user.routes');
 app.use('/api/users', userRouter); // định tuyến user API
 
+// Import routes product
+const productRoutes = require("./routes/product.routes");
+app.use("/api/products", productRoutes);
+// Category
+const categoryRoutes = require("./routes/category.routes");
+app.use("/api/categories", categoryRoutes);
+
 app.listen(PORT, () => {
     console.log(` Server running on port ${PORT}`);
 });
