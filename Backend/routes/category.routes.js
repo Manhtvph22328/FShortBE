@@ -1,8 +1,12 @@
 const express = require("express");
-// const { getProducts, searchProducts, getProductById, createProduct, updateProduct, deleteProduct } = require("../controllers/product.controller");
-const productController = require("../controllers/product.controller");
+// const { getCategories, createCategory, updateCategory, deleteCategory } = require("../controllers/category.controller");
+const categoryController = require("../controllers/category.controller");
 const router = express.Router();
 
-// Routes cho sản phẩm
-router.get("/products", productController.getAllProducts);
+// Routes cho danh mục
+router.get('/listCategories', categoryController.getCategories);
 router.post('/addCategories', categoryController.createCategory);
+router.put("/updateCategories/:id", categoryController.updateCategory);
+// router.delete("/deleteCategories/:id", categoryController.deleteCategory);
+
+module.exports = router;

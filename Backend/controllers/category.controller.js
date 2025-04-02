@@ -29,4 +29,23 @@ exports.createCategory = async (req, res) => {
         res.status(500).json({ message: "Lỗi khi thêm danh mục!", error });
     }
 };
-// bên dưới xử lý sửa danh mục
+
+// Cập nhật danh mục (Admin)
+exports.updateCategory = async (req, res) => {
+    try {
+        const category = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json({ message: "Cập nhật danh mục thành công", category });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi khi cập nhật danh mục" });
+    }
+};
+
+// Xóa danh mục (Admin)
+// exports.deleteCategory = async (req, res) => {
+//     try {
+//         await Category.findByIdAndDelete(req.params.id);
+//         res.json({ message: "Xóa danh mục thành công" });
+//     } catch (error) {
+//         res.status(500).json({ message: "Lỗi khi xóa danh mục" });
+//     }
+// };
