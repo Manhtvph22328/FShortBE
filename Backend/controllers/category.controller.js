@@ -14,6 +14,7 @@ exports.getCategories = async (req, res) => {
 exports.createCategory = async (req, res) => {
     try {
         const { name } = req.body;
+        console.log("Dữ liệu nhận từ frontend:", req.body); // Log dữ liệu nhận được từ frontend
 
         // Kiểm tra xem danh mục đã tồn tại chưa
         const existingCategory = await Category.findOne({ name });
@@ -21,12 +22,18 @@ exports.createCategory = async (req, res) => {
             return res.status(400).json({ message: "Danh mục đã tồn tại!" });
         }
 
+        // Kiểm tra xem tên có hợp lệ không
+        if (!name || name.trim() === "") {
+            return res.status(400).json({ message: "Tên danh mục không được để trống" });
+        }
+
         // Nếu chưa tồn tại, tạo mới
         const newCategory = new Category({ name });
         await newCategory.save();
         res.status(201).json({ message: "Thêm danh mục thành công!", category: newCategory });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi khi thêm danh mục!", error });
+        console.error("Lỗi khi thêm danh mục:", error); // Log chi tiết lỗi
+        res.status(500).json({ message: "Lỗi khi thêm danh mục!", error: error.message });
     }
 };
 

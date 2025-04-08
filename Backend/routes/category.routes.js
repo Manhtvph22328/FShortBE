@@ -5,7 +5,8 @@ const router = express.Router();
 
 // Routes cho danh mục
 router.get('/listCategories', categoryController.getCategories);
-router.post('/addCategories', categoryController.createCategory);
+// router.post('/addCategories', categoryController.createCategory);
+router.post('/createCategory', categoryController.createCategory);
 router.put("/updateCategories/:id", categoryController.updateCategory);
 // router.delete("/deleteCategories/:id", categoryController.deleteCategory);
 
