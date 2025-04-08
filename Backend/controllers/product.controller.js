@@ -1,4 +1,5 @@
 const Product = require("../models/product.model");
+// console.log("Kiểu dữ liệu Product:", Product);
 
 // Lấy danh sách tất cả sản phẩm
 exports.getAllProducts = async (req, res) => {
@@ -71,22 +72,52 @@ exports.searchProducts = async (req, res) => {
     }
 };
 
-// Thêm sản phẩm mới
 exports.createProduct = async (req, res) => {
     try {
-        const { name_product, price, sold, rating, quantity, images, size, color, description, category_id } = req.body;
-        if (!name_product || !price || !category_id) return res.status(400).json({ message: "Thiếu thông tin sản phẩm" });
+        console.log("Dữ liệu req.body nhận được:", req.body);
+
+        const {
+            name_product,
+            price,
+            sold,
+            rating,
+            quantity,
+            images,
+            size,
+            color,
+            description,
+            category, // <-- đây là key thực tế client gửi lên
+        } = req.body;
+
+        if (!name_product || !price || !quantity || !images || !category) {
+            console.error("Thiếu thông tin sản phẩm:", {
+                name_product, price, quantity, images, category
+            });
+            return res.status(400).json({ message: "Thiếu thông tin sản phẩm" });
+        }
 
         const newProduct = new Product({
-            name_product, price, sold, rating, quantity, images, size, color, description, category_id
+            name_product,
+            price,
+            sold: sold || 0,
+            rating: rating || 0,
+            quantity,
+            images,
+            size,
+            color,
+            description,
+            category, // <-- gán đúng field schema luôn
         });
 
         await newProduct.save();
         res.json({ message: "Thêm sản phẩm thành công", product: newProduct });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi thêm sản phẩm: ", error });
+        console.error("Lỗi thêm sản phẩm:", error);
+        res.status(500).json({ message: "Lỗi thêm sản phẩm", error });
     }
 };
+
+
 
 // Sửa sản phẩm
 exports.updateProduct = async (req, res) => {
