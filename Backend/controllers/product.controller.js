@@ -4,17 +4,27 @@ const Product = require("../models/product.model");
 // Lấy danh sách tất cả sản phẩm
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find();
+        const { is_active } = req.query;
+
+        let filter = {};
+        if (is_active === "true") filter.is_active = true;
+        else if (is_active === "false") filter.is_active = false;
+
+        const products = await Product.find(filter).sort({ createdAt: -1 });
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: "Lỗi server" });
     }
 };
 
+
 // Lấy danh sách sản phẩm theo danh mục
 exports.getProductsByCategory = async (req, res) => {
     try {
-        const products = await Product.find({ category_id: req.params.categoryId });
+        const products = await Product.find({
+            category: req.params.categoryId,
+            is_active: true
+        });
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: "Lỗi server" });
@@ -49,25 +59,18 @@ exports.getTopSellingProducts = async (req, res) => {
 // Tìm kiếm sản phẩm theo tên
 exports.searchProducts = async (req, res) => {
     try {
-        console.log("Query nhận được:", req.query);
-
         const { keyword } = req.query;
-        if (!keyword) {
-            console.log("Lỗi: Không có từ khoá tìm kiếm!");
-            return res.status(400).json({ message: "Vui lòng nhập từ khoá tìm kiếm" });
-        }
+        if (!keyword) return res.status(400).json({ message: "Vui lòng nhập từ khoá tìm kiếm" });
 
         const products = await Product.find({
-            // name_product: { $regex: `^${keyword.trim()}`, $options: 'i' }  // 'i' là cho phép tìm kiếm không phân biệt chữ hoa/thường
-            $text: { $search: `"${keyword.trim()}"` },  // Tìm kiếm chính xác từ khóa
-            // $text: { $search: keyword }
-
+            // $text: { $search: keyword.trim() },
+            name_product: { $regex: keyword.trim(), $options: 'i' },
+            // is_active: true
         });
-        console.log("Kết quả tìm kiếm:", products);
 
         res.json(products);
     } catch (error) {
-        console.error("Lỗi server:", error.message, error.stack);
+        console.error("Lỗi tìm kiếm sản phẩm:", error);
         res.status(500).json({ message: "Lỗi server", error });
     }
 };
