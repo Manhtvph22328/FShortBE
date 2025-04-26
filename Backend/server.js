@@ -24,6 +24,9 @@ app.use("/api/products", productRoutes);
 // Category
 const categoryRoutes = require("./routes/category.routes");
 app.use("/api/categories", categoryRoutes);
+// Cart
+const cartRoutes = require("./routes/cart.routes");
+app.use("/api/cart", cartRoutes);
 
 // Cho phép truy cập ảnh trong thư mục uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads_img')));
