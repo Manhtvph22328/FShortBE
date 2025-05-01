@@ -148,6 +148,8 @@ const getAllOrders = async (req, res) => {
         return res.status(500).json({ message: 'Lỗi hệ thống' });
     }
 };
+
+
 const getOrderDetail = async (req, res) => {
     try {
         const orderId = req.params.id;
@@ -167,10 +169,115 @@ const getOrderDetail = async (req, res) => {
     }
 };
 
+const updateStatusOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const userId = req.user.userId;
+        const { status } = req.body;
+
+        // Kiểm tra trạng thái hợp lệ
+        if (!status || !['Pending', 'Processed', 'Delivered', 'Cancelled'].includes(status)) {
+            return res.status(400).json({ message: 'Trạng thái không hợp lệ' });
+        }
+
+        // Tìm đơn hàng theo orderId
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+        }
+
+        // Nếu muốn hủy đơn hàng, chỉ cho phép khi trạng thái hiện tại là "Pending" hoặc "Processed"
+        if (status === 'Cancelled' && order.status !== 'Pending' && order.status !== 'Processed') {
+            return res.status(400).json({ message: 'Chỉ có thể hủy đơn hàng khi đang ở trạng thái Chờ xử lý hoặc Đang giao hàng' });
+        }
+
+        // Ghi lại lịch sử trạng thái
+        const statusHistory = {
+            status: status,
+            changedBy: userId
+        };
+
+        // Kiểm tra và khởi tạo mảng statusHistory nếu chưa có
+        if (!order.statusHistory) {
+            order.statusHistory = [];
+        }
+
+        // Cập nhật trạng thái và lịch sử trạng thái
+        order.statusHistory.push(statusHistory);
+        order.status = status;
+        if (status === 'Delivered') {
+            order.paymentStatus = 'Paid'
+        }
+        const updatedOrder = await order.save();
+        if (status === 'Delivered') {
+            for (const item of order.products) {
+                await Product.findByIdAndUpdate(
+                    item.productId,
+                    {
+                        $inc: { sold: 1, quantity: -1 }, // Tăng số lượng đã bán và giảm số lượng sản phẩm
+                    },
+                    { new: true }
+                );
+            }
+        }
+
+
+        return res.status(200).json({
+            message: 'Cập nhật trạng thái đơn hàng thành công',
+            updatedOrder,
+        });
+
+    } catch (e) {
+        console.error('Lỗi khi cập nhật trạng thái đơn hàng:', e);
+        return res.status(500).json({ message: 'Lỗi hệ thống' });
+    }
+};
+
+const cancelOrder = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const userId = req.user.userId;
+
+        // Tìm đơn hàng theo ID và userId
+        const order = await Order.findOne({ _id: orderId, userId });
+
+        if (!order) {
+            return res.status(404).json({ message: 'Đơn hàng không tồn tại' });
+        }
+
+        // Chỉ cho phép hủy nếu trạng thái là "Pending"
+        if (order.status !== 'Pending') {
+            return res.status(400).json({ message: 'Chỉ được hủy đơn hàng ở trạng thái đang chờ xử lý' });
+        }
+
+        // Cập nhật trạng thái thành "Cancelled"
+        order.status = 'Cancelled';
+        order.statusHistory.push({
+            status: 'Cancelled',
+            changedBy: userId,
+            changedAt: new Date(),
+        });
+
+        await order.save();
+
+        return res.status(200).json({
+            message: 'Đã hủy đơn hàng thành công',
+            order,
+        });
+    } catch (error) {
+        console.error('Lỗi hủy đơn hàng:', error);
+        return res.status(500).json({ message: 'Lỗi server khi hủy đơn hàng' });
+    }
+};
+
+
 
 module.exports = {
     getOrderByStatus,
+    updateStatusOrder,
     createOrder,
+    cancelOrder,
     getAllOrders,
     getOrderDetail
 };
