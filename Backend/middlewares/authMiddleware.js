@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config/env');
 
 const authMiddleware = (req, res, next) => {
-    const token = req.header('Authorization');
+    const token = req.header('Authorization')?.split(" ")[1];
     if (!token) {
         return res.status(401).json({ message: 'Không có token, từ chối truy cập!' });
     }
@@ -12,8 +12,20 @@ const authMiddleware = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Token không hợp lệ!' });
+        return res.status(403).json({ message: 'Token không hợp lệ hoặc đã hết hạn!' });
     }
 };
 
-module.exports = authMiddleware;
+// middleware/authorize.js
+
+const isAdmin = (req, res, next) => {
+    if (req.user?.role !== 'admin') {
+        return res.status(403).json({ message: 'Bạn không có quyền truy cập (yêu cầu admin)' });
+    }
+    next();
+};
+
+module.exports = {
+    isAdmin,
+    authMiddleware
+};

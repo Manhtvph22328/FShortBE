@@ -34,8 +34,12 @@ app.use("/api/order", orderRoutes);
 // Cho phép truy cập ảnh trong thư mục uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads_img')));
 
+// Cho phép truy cập ảnh trong thư mục uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads_img')));
+
 // Route upload
 const uploadRoute = require('./routes/upload.routes');
+const http = require("node:http");
 app.use("/api/upload", uploadRoute);
 
 // check lỗi 
