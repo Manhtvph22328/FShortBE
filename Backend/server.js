@@ -41,6 +41,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads_img')));
 const uploadRoute = require('./routes/upload.routes');
 const http = require("node:http");
 app.use("/api/upload", uploadRoute);
+// Routes review
+const reviewRoutes = require("./routes/review.routes");
+app.use("/api/review", reviewRoutes);
 
 // check lỗi 
 app._router.stack.forEach((r) => {
