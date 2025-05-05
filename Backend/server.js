@@ -44,6 +44,9 @@ app.use("/api/upload", uploadRoute);
 // Routes review
 const reviewRoutes = require("./routes/review.routes");
 app.use("/api/review", reviewRoutes);
+// routes payment momo
+const momoRoutes = require("./routes/momo.routes");
+app.use("/api/momo", momoRoutes);
 
 // check lỗi 
 app._router.stack.forEach((r) => {
