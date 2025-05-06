@@ -50,6 +50,11 @@ app.use("/api/momo", momoRoutes);
 // wishlist
 const wishlistRoutes = require("./routes/wishlist.routes")
 app.use("/api/wishlist", wishlistRoutes);
+// address info
+const informationRoutes = require("./routes/information.routes");
+app.use("/api/information", informationRoutes);
+
+
 // check lỗi 
 app._router.stack.forEach((r) => {
     if (r.route && r.route.path) {
